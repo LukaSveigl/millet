@@ -116,10 +116,11 @@ and desugar_plain_expression ~loc state = function
       let x' = lookup_variable ~loc state x in
       ([], Untyped.Var x')
   | Sugared.Const k -> ([], Untyped.Const k)
-  | Sugared.Annotated (term, ty) ->
-      let binds, expr = desugar_expression state term in
+  | Sugared.Annotated (term, _ty) ->
+      desugar_expression state term
+      (* let binds, expr = desugar_expression state term in
       let ty' = desugar_ty state ty in
-      (binds, Untyped.Annotated (expr, ty'))
+         (binds, Untyped.Annotated (expr, ty')) *)
   | Sugared.Lambda a ->
       let a' = desugar_abstraction state a in
       ([], Untyped.Lambda a')
