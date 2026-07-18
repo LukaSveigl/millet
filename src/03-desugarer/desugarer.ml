@@ -207,21 +207,11 @@ and desugar_abstraction state (pat, term) =
   let comp = desugar_computation state' term in
   (pat', comp)
 
-and desugar_let_rec_def state (f, ({ Sugared.it = exp; at = loc } as term)) =
+and desugar_let_rec_def state (f, term) =
   let term, annotations = strip_annotation term in
 
   let f' = Untyped.Variable.fresh f in
   let state' = add_fresh_variables state (StringMap.singleton f f') in
-
-  begin match exp with
-  | Sugared.Annotated _ ->
-      Format.eprintf "DEBUG: recursive definition is Annotated@."
-  | Sugared.Function _ ->
-      Format.eprintf "DEBUG: recursive definition is Function@."
-  | Sugared.Lambda _ -> Format.eprintf "DEBUG: recursive definition is Lambda@."
-  | _ -> Format.eprintf "DEBUG: recursive definition is something else@."
-  end;
-
   let abs' =
     match term.Sugared.it with
     | Sugared.Lambda a -> desugar_abstraction state' a
@@ -231,7 +221,7 @@ and desugar_let_rec_def state (f, ({ Sugared.it = exp; at = loc } as term)) =
         let new_match = Untyped.Match (Untyped.Var x, cs) in
         (Untyped.PVar x, new_match)
     | _ ->
-        Error.syntax ~loc
+        Error.syntax ~loc:term.at
           "This kind of expression is not allowed in a recursive definition"
   in
   let expr = Untyped.RecLambda (f', abs') in
