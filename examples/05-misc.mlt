@@ -1,0 +1,31 @@
+let square (x: int): int = x * x
+let rectangle_perimeter (a: int) (b: int): int = 2 * (a + b)
+let box_surface a b c = 2 * (a * b + a * c + b * c)
+
+let add (x: int) (y: int) : int = x + y
+
+let add3 (x: int) (y: int) (z: int): int = x + y + z
+
+let tmp1 (x: int) (y: int) : int = x * y
+
+let tmp2 (x: int) (y: int) (z: int) : int = x * y + z
+
+let tmp3 (x: float) (y: float) (z: float) : float = ~-.(x +. y *. z)
+
+let 'a. 'b. 'c. tmp4 (x: 'a) (y: 'a) (z: 'b) (w: 'b) : 'c = -(x * y) - (z mod w)
+
+run add 1 3
+
+run add3 1 2 3
+
+run tmp1 1 3
+
+run tmp2 1 3 4
+
+run tmp3 1.0 2.0 3.0
+
+run tmp4 1 2 3 4
+
+run square 7
+run rectangle_perimeter 3 4
+run box_surface 1 2 3

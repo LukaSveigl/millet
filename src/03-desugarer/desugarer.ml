@@ -49,6 +49,13 @@ let lookup_ty_param ~loc state = find_symbol ~loc state.ty_params
 let lookup_variable ~loc state = find_symbol ~loc state.variables
 let lookup_label ~loc state = find_symbol ~loc state.labels
 
+let rec strip_annotation ({ Sugared.it = term; at = loc } : Sugared.term) =
+  match term with
+  | Sugared.Annotated (t, ty) ->
+      let inner, tys = strip_annotation t in
+      (inner, ty :: tys)
+  | _ -> (({ Sugared.it = term; at = loc } : Sugared.term), [])
+
 let rec desugar_ty state { Sugared.it = plain_ty; at = loc } =
   desugar_plain_ty ~loc state plain_ty
 
@@ -116,11 +123,7 @@ and desugar_plain_expression ~loc state = function
       let x' = lookup_variable ~loc state x in
       ([], Untyped.Var x')
   | Sugared.Const k -> ([], Untyped.Const k)
-  | Sugared.Annotated (term, _ty) ->
-      desugar_expression state term
-      (* let binds, expr = desugar_expression state term in
-      let ty' = desugar_ty state ty in
-         (binds, Untyped.Annotated (expr, ty')) *)
+  | Sugared.Annotated (term, _ty) -> desugar_expression state term
   | Sugared.Lambda a ->
       let a' = desugar_abstraction state a in
       ([], Untyped.Lambda a')
@@ -204,11 +207,23 @@ and desugar_abstraction state (pat, term) =
   let comp = desugar_computation state' term in
   (pat', comp)
 
-and desugar_let_rec_def state (f, { it = exp; at = loc }) =
+and desugar_let_rec_def state (f, ({ Sugared.it = exp; at = loc } as term)) =
+  let term, annotations = strip_annotation term in
+
   let f' = Untyped.Variable.fresh f in
   let state' = add_fresh_variables state (StringMap.singleton f f') in
+
+  begin match exp with
+  | Sugared.Annotated _ ->
+      Format.eprintf "DEBUG: recursive definition is Annotated@."
+  | Sugared.Function _ ->
+      Format.eprintf "DEBUG: recursive definition is Function@."
+  | Sugared.Lambda _ -> Format.eprintf "DEBUG: recursive definition is Lambda@."
+  | _ -> Format.eprintf "DEBUG: recursive definition is something else@."
+  end;
+
   let abs' =
-    match exp with
+    match term.Sugared.it with
     | Sugared.Lambda a -> desugar_abstraction state' a
     | Sugared.Function cs ->
         let x = Untyped.Variable.fresh "rf" in
@@ -220,6 +235,11 @@ and desugar_let_rec_def state (f, { it = exp; at = loc }) =
           "This kind of expression is not allowed in a recursive definition"
   in
   let expr = Untyped.RecLambda (f', abs') in
+  let expr =
+    List.fold_left
+      (fun expr ty -> Untyped.Annotated (expr, desugar_ty state ty))
+      expr annotations
+  in
   (state', f', expr)
 
 and desugar_expressions state = function
