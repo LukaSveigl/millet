@@ -1,6 +1,6 @@
 let square (x: int): int = x * x
 let rectangle_perimeter (a: int) (b: int): int = 2 * (a + b)
-let box_surface a b c = 2 * (a * b + a * c + b * c)
+let box_surface (a: int) (b: int) (c: int) : int = 2 * (a * b + a * c + b * c)
 
 let add (x: int) (y: int) : int = x + y
 

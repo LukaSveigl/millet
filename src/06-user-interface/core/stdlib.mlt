@@ -17,14 +17,14 @@ let ( /. ) (x: float) (y: float) : float = __float_div__ (x, y)
 let ( ** ) (x: float) (y: float) : float = __float_pow__ (x, y)
 let ( ~-. ) (x: float) : float = __float_neg__ x
 
-let 'a. absurd void : 'a = (match void with)
+(* let 'a. absurd void : empty -> 'a = fun void -> (match void with) *)
 
 (* Booleans *)
 let not (x: bool) : bool = if x then false else true
 
 type 'a option = None | Some of 'a
 
-let rec 'a. 'b. assoc (x: 'a): ('a * 'b) = function
+let rec 'a. 'b. assoc (x: 'a): ('a * 'b) list -> 'b option = function
   | [] -> None
   | (key, v) :: lst -> if x = key then Some v else assoc x lst
 
@@ -35,7 +35,7 @@ let rec range (m: int) (n: int) : int list  =
     m :: range (m + 1) n
 
 let 'a. reverse (lst: 'a list): 'a list =
-  let rec reverse_acc acc = function
+  let rec reverse_acc (acc: 'a list): 'a list -> 'a list = function
     | [] -> acc
     | x :: xs -> reverse_acc (x :: acc) xs
   in
@@ -51,7 +51,7 @@ let rec 'a. 'b. map (f: 'a -> 'b): 'a list -> 'b list = function
 let 'a. hd: 'a list -> 'a = function
   | x :: _ -> x
 
-let 'a. tl: 'a list -> 'a = function
+let 'a. tl: 'a list -> 'a list = function
   | x :: xs -> xs
 
 let 'a. take (f: int -> 'a) (k: int): 'a list =
@@ -82,7 +82,7 @@ let rec 'a. exists (p: 'a -> bool) : 'a list -> bool = function
   | [] -> false
   | x :: xs -> if p x then true else exists p xs
 
-let 'a. mem (x: 'a) : 'a list = exists (fun x' -> x = x')
+let 'a. mem (x: 'a) : 'a list -> bool = exists (fun x' -> x = x')
 
 let rec 'a. filter (p: 'a -> bool) : 'a list -> 'a list = function
   | [] -> []
@@ -115,7 +115,7 @@ let rec 'a. nth (x::xs : 'a list) (n: int) : 'a =
   if n = 0 then x else nth xs (n - 1)
 
 (* Basic functions *)
-let 'a. abs (x: 'a) : 'a = if x < 0 then -x else x
+let abs (x: int) : int = if x < 0 then -x else x
 let 'a. min (x: 'a) (y: 'a) : 'a = if x < y then x else y
 let 'a. max (x: 'a) (y: 'a) : 'a = if x < y then y else x
 let rec gcd (m: int) (n: int) : int =
@@ -126,8 +126,8 @@ let rec gcd (m: int) (n: int) : int =
 let rec lcm (m: int) (n: int) : int =
   let d = gcd m n in (m * n) / d
 
-let odd (x: int) : int = (x mod 2) = 1
-let even (x: int) : int = (x mod 2) = 0
+let odd (x: int) : bool = (x mod 2) = 1
+let even (x: int) : bool = (x mod 2) = 0
 let 'a. id (x: 'a) : 'a = x
 let 'a. 'b. 'c. compose (f: 'b -> 'c) (g: 'a -> 'b) (x: 'a) : 'c = f (g x)
 let 'a. 'b. (|>) (x: 'a) (f: 'a -> 'b) : 'b = f x
