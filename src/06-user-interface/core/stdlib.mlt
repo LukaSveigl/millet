@@ -91,7 +91,7 @@ let rec 'a. filter (p: 'a -> bool) : 'a list -> 'a list = function
 
 let 'a. complement (xs: 'a list) (ys: 'a list) : 'a list = filter (fun x -> not (mem x ys)) xs
 let 'a. intersection (xs: 'a list) (ys: 'a list) : 'a list = filter (fun x -> mem x ys) xs
-let rec 'a. 'b. zip (xs: 'a list) (ys: 'a list) : ('a * 'b) list =
+let rec 'a. 'b. zip (xs: 'a list) (ys: 'b list) : ('a * 'b) list =
   match (xs, ys) with
   | ([], []) -> []
   | (x :: xs, y :: ys) -> (x, y) :: (zip xs ys)

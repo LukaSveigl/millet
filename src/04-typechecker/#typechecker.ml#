@@ -384,6 +384,7 @@ let add_external_function x ty_sch state =
   { state with variables = Ast.VariableMap.add x ty_sch state.variables }
 
 let add_top_definition state x expr =
+  (*Format.eprintf "Typechecking definition of %t...@." (Ast.Variable.print x);*)
   let subst = ref Ast.TyParamMap.empty in
   let ty = infer_expression state subst expr in
   let ty' = resolve subst ty in

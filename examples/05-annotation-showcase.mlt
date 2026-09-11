@@ -21,7 +21,7 @@ let rec total_area (shapes: shape list) : float =
   | [] -> 0.0
   | s :: rest -> area s +. total_area rest
 
-(* NECESSARY (sharp edge): a recursive call before the last curried
+(* NECESSARY: a recursive call before the last curried
    argument needs the FULL arrow type up front, not just the first
    parameter -- the checker can't discover it mid-body. *)
 let rec count_matching (p: shape -> bool) : shape list -> int = function
@@ -46,7 +46,6 @@ let rec largest (shapes: shape list) : shape option =
       | None -> Some s
       | Some s' -> if area s >= area s' then Some s else Some s')
 
-(* UNNECESSARY: let-polymorphism -- one definition, many types. *)
 let 'a. id (x: 'a) : 'a = x
 
 let catalog : shape list =
